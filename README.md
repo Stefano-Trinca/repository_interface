@@ -1,39 +1,56 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Repository Interface
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+This Dart package provides a robust interface for implementing repository patterns in Dart and Flutter applications. It abstracts common CRUD operations into a customizable interface that can be adapted to various data storage solutions, such as Firebase Firestore.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- **Customizable Repository Interfaces:** Define your repository interactions with customizable document and collection configurations.
+- **Streamlined Data Handling:** Use streams to handle real-time data updates and maintain synchronization with your data source.
+- **Type Safety:** Leverage Dart's strong typing to ensure your data handling is clear and error-free.
 
-## Getting started
+## Installation
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+To use this package, add the following dependency to your project's `pubspec.yaml`:
 
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
+```yaml
+repository_interface:
+  git:
+    url: https://github.com/nome-utente/repository_interface.git
+    ref: 0.0.1
 ```
 
-## Additional information
+## Usage Example
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+Below is an example of how to implement a `UserDataRepository` using the `RepositoryDocumentInterface`. This example integrates with Firebase Firestore to manage user data:
+
+```dart
+class UserDataRepository extends RepositoryDocumentInterface<UserData, String>
+    with FirebaseCloudfirestoreImpl, NetworkManagerInterface {
+  @override
+  String get repositoryName => 'UserDataRepository';
+
+  @override
+  RepositoryDocumentConfiguration<UserData, String> get configuration =>
+      RepositoryDocumentConfiguration(
+        documentPath: (key) => pathCloudfirestore.userdata(netconfig.uid),
+        streamBuilder: (path, fromMap) => serviceCloudfirestore.streamDocument(
+          path: path,
+          builder: fromMap,
+          onNull: const UserData.empty(),
+        ),
+        set: (path, map) => serviceCloudfirestore.setDocument(path: path, data: map),
+        update: (path, map) => serviceCloudfirestore.updateDocument(path: path, data: map),
+        delete: (path) => serviceCloudfirestore.deleteDocument(path: path),
+        exist: (path) => serviceCloudfirestore.exist(path: path),
+        emptyObject: const UserData.empty(),
+        fromMap: (data, key) => UserDataModel.fromMap(data).toEntity(),
+        toMap: (e) => UserDataModel.fromEntity(e).toMap(),
+      );
+}
+```
+
+This setup demonstrates configuring a repository to interact with Firestore, where `UserData` is a domain model representing user data.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
