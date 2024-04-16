@@ -15,7 +15,7 @@ To use this package, add the following dependency to your project's `pubspec.yam
 ```yaml
 repository_interface:
   git:
-    url: https://github.com/nome-utente/repository_interface.git
+    url: https://github.com/Stefano-Trinca/repository_interface.git
     ref: 0.0.1
 ```
 
