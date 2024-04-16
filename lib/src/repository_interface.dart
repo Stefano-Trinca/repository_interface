@@ -6,7 +6,6 @@ typedef FromMap<E> = E Function(Map<String, dynamic> data, String? key);
 typedef ToMap<E> = Map<String, dynamic> Function(E e);
 typedef CheckPermission = bool Function();
 
-
 /// An abstract class that defines a document-based repository interface.
 ///
 /// This interface is intended to be used with a data model (`E`) and a key type (`SK`),
@@ -324,7 +323,7 @@ abstract class RepositoryCollectionInterface<E, LK, SK, BK> with BehaviorListMix
       return const Stream.empty();
     }
     try {
-      return streamAll(listKey: listKey).map((l) =>
+      return streamAll(listKey: listKey, customPermission: customPermission).map((l) =>
           l.firstWhere((e) => _config.hasKey(e, singleKey), orElse: () => _config.emptyObject));
     } catch (e) {
       AppLog.error('$e', repositoryName, 'streamSingle');
@@ -451,7 +450,7 @@ abstract class RepositoryCollectionInterface<E, LK, SK, BK> with BehaviorListMix
       return _config.emptyObject;
     }
     try {
-      return cacheAll(listKey: listKey)
+      return cacheAll(listKey: listKey, customPermission: customPermission)
           .firstWhere((e) => _config.hasKey(e, singleKey), orElse: () => _config.emptyObject);
     } catch (e) {
       AppLog.error('$e', repositoryName, 'cacheSingle');
