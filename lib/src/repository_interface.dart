@@ -147,6 +147,34 @@ abstract class RepositoryDocumentInterface<E, SK> with BehaviorMixin<E> {
     }
   }
 
+  /// Sets specific field values for a document using the provided key and data map, considering permissions and handling errors.
+  ///
+  /// This method updates the fields of the document with the given data.
+  /// It only modifies fields that are explicitly provided in the `data` map, leaving other fields unchanged.
+  /// The operation returns true if it successfully updates the document.
+  ///
+  /// Parameters:
+  /// - [key]: The document key of type `SK`.
+  /// - [data]: A map of field names and their new values to update in the document.
+  /// - [customPermission]: An optional parameter to apply custom permission logic.
+  ///
+  /// Returns:
+  /// - A `Future<bool>` that completes with `true` if the document fields were successfully updated, otherwise `false`.
+  Future<bool> setValue(
+      {required SK key,
+      required Map<String, dynamic> data,
+      CheckPermission? customPermission}) async {
+    if (_isPermissionDeni('setValue', customPermission)) {
+      return false;
+    }
+    try {
+      return _config.set(_config.documentPath(key), data);
+    } catch (e) {
+      AppLog.error('$e', repositoryName, 'setValue');
+      return false;
+    }
+  }
+
   /// Updates an existing document with new data, handling permissions and errors.
   ///
   /// This method updates a document at the specified key with the provided entity data.
@@ -483,6 +511,36 @@ abstract class RepositoryCollectionInterface<E, LK, SK, BK> with BehaviorListMix
       return _config.setDocument(_config.singlePath(listKey, singleKey), _config.toMap(e));
     } catch (e) {
       AppLog.error('$e', repositoryName, 'set');
+      return false;
+    }
+  }
+
+  /// Sets specific field values for a document in the collection using the provided keys and data map, considering permissions and handling errors.
+  ///
+  /// This method updates the fields of a document at the specified collection and document keys with the given data.
+  /// It only modifies fields that are explicitly provided in the `data` map, leaving other fields unchanged.
+  /// The operation returns true if it successfully updates the document.
+  ///
+  /// Parameters:
+  /// - [listKey]: The collection key of type `LK`.
+  /// - [singleKey]: The document key of type `SK`.
+  /// - [data]: A map of field names and their new values to update in the document.
+  /// - [customPermission]: An optional parameter to apply custom permission logic.
+  ///
+  /// Returns:
+  /// - A `Future<bool>` that completes with `true` if the document fields were successfully updated, otherwise `false`.
+  Future<bool> setValue(
+      {required LK listKey,
+      required SK singleKey,
+      required Map<String, dynamic> data,
+      CheckPermission? customPermission}) async {
+    if (_isPermissionDeni('setValue', customPermission)) {
+      return false;
+    }
+    try {
+      return _config.setDocument(_config.singlePath(listKey, singleKey), data);
+    } catch (e) {
+      AppLog.error('$e', repositoryName, 'setValue');
       return false;
     }
   }
